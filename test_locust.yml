@@ -3,12 +3,12 @@
 services:
 - module: pip-install                    # Install required Packages 
   packages: 
-    - idna                             # List packages to install 
-    - aiohttp==4.0.0a0                   
-    - locust-plugins  
+  - idna                                 # List packages to install 
+  - aiohttp==4.0.0a0                   
+  - locust-plugins  
 - module: shellexec                      # Execute Commands and more
   prepare:                               # stage names: [prepare, startup, check]
-  - command: mkdir /tmp/TaurusResult     # task command
+  - command: mkdir /tmp/TaurusResults    # task command
     background: false                    # wait for task completion or send it to background, false by default. 
     ignore-failure: true                 # false by default, otherwise will shutdown tests if command return code != 0, 
     out: taskout.txt                     # set file name for task stdout, null to print to stdout
@@ -37,15 +37,15 @@ reporting:
   percentiles: true                      # display average times and percentiles
   failed-labels: false                   # provides list of sample labels with failures
   test-duration: true                    # provides test duration
- # dump-csv: /TaurusResult/locust_exec_result_csv.csv
- # dump-xml: /TaurusResult/locust_exec_result_xml.xml
+  dump-csv: /tmp/TaurusResults/locust_exec_result_csv.csv
+  dump-xml: /tmp/TaurusResults/locust_exec_result_xml.xml
 - module: passfail                       # defines exection success critieria and drives docker exit code status 
   run-at: local
   criteria:                              # defines pass/fall critieria - refer to documentation for advance implementations
   - avg-rt>2s for 10s
   #- avg-rt>150ms
 - module: junit-xml
-  filename: /tmp/TaurusResult/locust_results_junit.xml
+  filename: /tmp/TaurusResults/locust_results_junit.xml
   data-source: pass-fail
 
 settings:
