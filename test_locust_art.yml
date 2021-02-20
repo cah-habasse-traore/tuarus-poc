@@ -1,0 +1,61 @@
+#! /usr/local/bin/bzt
+
+services:
+# - module: pip-install                    # Install required Packages 
+#   packages:   
+#   - idna                                 # List packages to install 
+#   - aiohttp==4.0.0a0                   
+#   - locust-plugins  
+- module: shellexec                      # Execute Commands and more
+  prepare:                               # stage names: [prepare, startup, check]
+  - command: mkdir /tmp/ART_TaurusResults    # task command
+    background: false                    # wait for task completion or send it to background, false by default. 
+    ignore-failure: true                 # false by default, otherwise will shutdown tests if command return code != 0, 
+    out: taskout.txt                     # set file name for task stdout, null to print to stdout
+    err: taskerr.txt                     # set file name for task stderr, null to print to stdout
+  #  run-at: local                        # provisioning level to limit command usage, null to run always
+  #  cwd: artifacts-dir                   # option to change working dir for command, null to not change it
+
+
+execution:                               # define load test scenario  
+- executor: locust
+  concurrency: 10
+  ramp-up: 1m
+  hold-for: 5m
+  iterations: 1000                       # can be ieteration based but is overiden if 'hold-for is used'
+  scenario: locust-load-art
+
+scenarios:                               # define the execution scenario 
+  locust-load-art:                           # below default url required for Locust executor 
+    default-address: https://artillery.io
+    script: locustfile-art.py            # locust script 'locustfile' path - MUST NOT BE NAMED locustfile.py WILL CAUSE ISSUES 
+
+reporting:
+#- module: console
+- module: final-stats
+  summary: true                          # overall samples count and percent of failures
+  percentiles: true                      # display average times and percentiles
+  failed-labels: false                   # provides list of sample labels with failures
+  test-duration: true                    # provides test duration
+  dump-csv: /tmp/ART_TaurusResults/locust_exec_result_csv.csv
+  dump-xml: /tmp/ART_TaurusResults/locust_exec_result_xml.xml
+- module: passfail                       # defines exection success critieria and drives docker exit code status 
+  run-at: local
+  criteria:                              # defines pass/fall critieria - refer to documentation for advance implementations
+  - avg-rt>5s for 10s
+- module: junit-xml
+  filename: /tmp/ART_TaurusResults/locust_results_junit.xml
+  data-source: pass-fail
+
+settings:
+  aggregator: consolidator               # additional reporting properties 
+  check-interval: 1s
+  default-executor: locust
+  env:                                   # set environment variables to set timescale-db and grafana integration
+    PGHOST: host.docker.internal         # host value of other docker - hack Mac OSX specific - Not required on linux OS can use localhost
+    PGPORT: 5432
+    PGDATABASE: postgres
+    PGUSER: postgres
+    PGPASSWORD: admin
+    PGSSLMOD: disable                    # below grafana dashboard url can be referenced in the plugin will be output in the logs 
+    LOCUST_GRAFANA_URL: http://localhost:3000/d/qjIIww4Zz/locust-ht?orgId=1&from=now-15m&to=now
