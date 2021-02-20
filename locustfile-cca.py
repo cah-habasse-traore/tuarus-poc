@@ -11,26 +11,26 @@ class MyWebsiteUser(HttpUser):
     # Failed transaction to show failures reported in Grafana
     @task
     def index(self):
-        self.client.post("/authentication/1.0/getResults", {"postgres": "admin"})
+        self.client.post("/authentication/1.0/getResults", {"postgres": "admin"}, verify=False)
 
     @task
     def view_main_page(self):
-        self.client.get("/cgi-bin/mncal.cgi?ccoa")
+        self.client.get("/cgi-bin/mncal.cgi?ccoa", verify=False)
 
     @task
     def view_auction_page(self):
         auction_num = str(random.randint(1,300))
-        self.client.get("/cgi-bin/mndetails.cgi?ccoa"+ auction_num)
+        self.client.get("/cgi-bin/mndetails.cgi?ccoa"+auction_num, verify=False)
 
     @task
     def view_all_biditems_page(self):
         auction_num = str(random.randint(1,300))
-        self.client.get("/cgi-bin/mnlist.cgi?ccoa"+auction_num+"/category/ALL")
+        self.client.get("/cgi-bin/mnlist.cgi?ccoa"+auction_num+"/category/ALL", verify=False)
 
     @task
     def view_biditem_detail_page(self):
         auction_num = str(random.randint(1,300))
-        self.client.get("/cgi-bin/mnlist.cgi?ccoa"+auction_num+"/1")
+        self.client.get("/cgi-bin/mnlist.cgi?ccoa"+auction_num+"/1", verify=False)
 
 
 # Must be added to Locustfile to report execution metrics to timescale
