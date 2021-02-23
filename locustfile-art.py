@@ -1,6 +1,9 @@
 import time, random
 # Must be included in all the scripts 
-from locust_plugins.listeners import TimescaleListener 
+from locust_plugins import listeners  # NEW
+
+#from locust_plugins.listeners import TimescaleListener - OLD
+ 
 # Must Import 'events' for script to report metrics to timescale-db
 from locust import HttpUser, TaskSet, task, between, events
 
@@ -34,4 +37,5 @@ class MyWebsiteUser(HttpUser):
 # Grafana Dashboard key to view execution specific data is based on the 'testplan' value
 @events.init.add_listener
 def on_locust_init(environment, **_kwargs):
-    TimescaleListener(env=environment, testplan="taurus_art_listener_ex", target_env="myTestEnv")
+        listeners.Timescale(env=environment, testplan="taurus_art_listener_ex", target_env="myTestEnv")
+ #   TimescaleListener(env=environment, testplan="taurus_art_listener_ex", target_env="myTestEnv")  - OLD
