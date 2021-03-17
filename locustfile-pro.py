@@ -1,25 +1,33 @@
 import time, random
 from locust import HttpUser, TaskSet, task, between 
 
+auction_num = random.randint(1,300)
+print("Random Number", auction_num)
 
-class MyWebsiteUser(HttpUser):
-    wait_time = between(1, 2)
-
+class BrowseSite(TaskSet):
+ 
     @task
     def view_main_page(self):
         self.client.get("/cgi-bin/mncal.cgi?ccoa")
 
     @task
     def view_auction_page(self):
-        auction_num = str(random.randint(1,300))
-        self.client.get("/cgi-bin/mndetails.cgi?ccoa"+ auction_num)
+        self.client.get("/cgi-bin/mndetails.cgi?ccoa32")
 
-    @task
+    @task(3)
     def view_all_biditems_page(self):
-        auction_num = str(random.randint(1,300))
         self.client.get("/cgi-bin/mnlist.cgi?ccoa"+auction_num+"/category/ALL")
 
-    @task
+    @task(4)
     def view_biditem_detail_page(self):
-        auction_num = str(random.randint(1,300))
-        self.client.get("/cgi-bin/mnlist.cgi?ccoa"+auction_num+"/1")
+        self.client.get("cgi-bin/mnlist.cgi?ccoa"+auction_num+"/1")
+
+class MyWebsiteUser(HttpUser):
+    tasks = [BrowseSite]
+    host = "https://www.capitalcityonlineauction.com"
+
+    # we assume someone who is browsing the Locust docs,
+    # generally has a quite long waiting time (between
+    # 20 and 600 seconds), since there's a bunch of text
+    # on each page
+    wait_time = between(1, 2)
