@@ -29,7 +29,7 @@ execution:                               # define load test scenario
 
 scenarios:                               # define the execution scenario 
   locust-load-pro:                           # below default url required for Locust executor 
-    default-address: https://prometheus.io
+    default-address: https://www.capitalcityonlineauction.com
     script: locustfile-pro.py            # locust script 'locustfile' path - MUST NOT BE NAMED locustfile.py WILL CAUSE ISSUES 
 
 reporting:
